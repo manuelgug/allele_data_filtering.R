@@ -21,9 +21,10 @@ Rscript allele_data_filtering.R <path_to_file> <CFilteringMethod> <MAF>
 
   *q95*: single threshold derived from the 95th percentile of read counts from all amplicons across negative controls
 
-  *amp_max*: maximum read count for each amplicon across negative controls
+  *amp_max*: amplicon-specific thresholds derived from maximum read count for each amplicon across negative controls
 
-  *amp_q95*:  95th percentile of read counts for each amplicon across negative controls
+  *amp_q95*:  amplicon-specific thresholds derived from 95th percentile of read counts for each amplicon across negative controls
+  
 - `MAF`: Minimum allele frequency. Default: 0.02.
 
 ## Example
