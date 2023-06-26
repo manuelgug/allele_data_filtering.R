@@ -11,7 +11,7 @@
 ## Usage
 
 ```bash
-Rscript script_name.R <path_to_file> <CFilteringMethod> <MAF>
+Rscript allele_data_filtering.R <path_to_file> <CFilteringMethod> <MAF>
 ```
 
 - `path_to_file`: Path to the input allele data file.
