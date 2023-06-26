@@ -93,7 +93,7 @@ if (is.null(MAF) == TRUE || is.na(MAF) == TRUE){
 
 # apply MAF filter to remove potential false positives
 filtered_allele.data <- filtered_allele.data[filtered_allele.data$norm.reads.locus > MAF, ]
-filtered_allele.data <- filtered_allele.data[, !(names(filtered_allele.data) %in% c("norm.reads.locus", "n.alleles"))] #remove old allele freqs and counts
+# filtered_allele.data <- filtered_allele.data[, !(names(filtered_allele.data) %in% c("norm.reads.locus", "n.alleles"))] #remove old allele freqs and counts
 
 # recalculate allele freqs for each sample based on remaining read counts & allele counts based on remaining alleles
 # filtered_allele.data <- filtered_allele.data %>%
