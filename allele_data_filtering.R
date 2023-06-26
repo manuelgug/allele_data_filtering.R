@@ -96,10 +96,10 @@ filtered_allele.data <- filtered_allele.data[filtered_allele.data$norm.reads.loc
 filtered_allele.data <- filtered_allele.data[, !(names(filtered_allele.data) %in% c("norm.reads.locus", "n.alleles"))] #remove old allele freqs and counts
 
 # recalculate allele freqs for each sample based on remaining read counts & allele counts based on remaining alleles
-filtered_allele.data <- filtered_allele.data %>%
-  group_by(sampleID,locus) %>%
-  mutate(norm.reads.locus = reads/sum(reads))%>%
-  mutate(n.alleles = n())
+# filtered_allele.data <- filtered_allele.data %>%
+#   group_by(sampleID,locus) %>%
+#   mutate(norm.reads.locus = reads/sum(reads))%>%
+#   mutate(n.alleles = n())
 
 
 # identify positive controls and false positive alleles from 3D7 (single copy) positive controls identify false positives (step not needed)
