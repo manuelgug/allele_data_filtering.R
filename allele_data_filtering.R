@@ -7,8 +7,7 @@ CFilteringMethod=args[2] # OPTIONS: max, q95, amp_max, amp_q95
 MAF=args[3] #minimum allele frequency; default 0.02
 
 
-allele.data<-read.csv(path, sep ="\t") #this step is not needed since the allele.data object is gonna be already in the postdata_rearrange.R script. part from it when modifying
-
+allele.data<-read.csv(path, sep ="\t")
 
 #0) identify false positives (step not needed)
 pos_controls_before_index <- grepl("(?i)3D7", allele.data$sampleID) & !grepl("(?i)(Dd2|HB3|PM)", allele.data$sampleID)
