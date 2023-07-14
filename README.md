@@ -33,7 +33,7 @@ Rscript allele_data_filtering.R <path_to_file> <CFilteringMethod> <MAF>
 Rscript script_name.R allele_data.txt max 0.01
 ```
 
-## Control Nomenclature
+## Nomenclature of controls
 
 - **Positive Controls**: The script identifies positive controls using the following conditions:
   - Sample IDs containing "3D7" (case-insensitive) and not containing "Dd2", "HB3", or "PM" (case-insensitive).
