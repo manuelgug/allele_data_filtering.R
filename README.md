@@ -11,7 +11,7 @@
 ## Usage
 
 ```bash
-Rscript allele_data_filtering.R <path_to_file> <CFilteringMethod> <MAF>
+Rscript allele_data_filtering.R <path_to_file> <CFilteringMethod> <MAF> <exclude_file>
 ```
 
 - `path_to_file`: Path to the input allele data file.
@@ -27,10 +27,12 @@ Rscript allele_data_filtering.R <path_to_file> <CFilteringMethod> <MAF>
   
 - `MAF`: Minimum allele frequency. Default: 0.02.
 
+- `exclude_file`: file with a list of samples to exclude
+
 ## Example
 
 ```bash
-Rscript script_name.R allele_data.txt max 0.01
+Rscript script_name.R allele_data.txt max 0.01 neg_controls_to_exclude.txt
 ```
 
 ## Nomenclature of controls
