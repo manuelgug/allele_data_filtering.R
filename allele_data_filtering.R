@@ -9,6 +9,15 @@ MAF=args[3] #minimum allele frequency; default 0.02
 
 allele.data<-read.csv(path, sep ="\t")
 
+# Exclude samples based on sampleIDs provided in a text file if the 'exclude' argument is provided
+if (!is.null(args[4])) {
+  exclude_file <- args[4]
+  if (file.exists(exclude_file)) {
+    remove_samples <- read.csv(exclude_file, sep = "\t", header = FALSE)
+    allele.data <- subset(allele.data, !(sampleID %in% remove_samples$V1))
+  }
+}
+
 #0) identify false positives (step not needed)
 pos_controls_before_index <- grepl("(?i)3D7", allele.data$sampleID) & !grepl("(?i)(Dd2|HB3|PM)", allele.data$sampleID)
 pos_controls_before <- allele.data[pos_controls_before_index, ]
