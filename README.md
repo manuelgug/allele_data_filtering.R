@@ -27,7 +27,7 @@ Rscript allele_data_filtering.R <path_to_file> <CFilteringMethod> <MAF> <exclude
   
 - `MAF`: Minimum allele frequency. Default: 0.02.
 
-- `exclude_file`: file with a list of samples to exclude
+- `exclude_file`: file with a list of samples to exclude (optional).
 
 ## Example
 
