@@ -7,6 +7,10 @@ CFilteringMethod=args[2] # OPTIONS: max, q95, amp_max, amp_q95
 MAF=args[3] #minimum allele frequency; default 0.02
 
 allele.data<-read.csv(path, sep ="\t")
+amp_cats<-read.csv("amplicon_categories.csv", header =T)
+
+#add categories to allele.data
+allele.data <- merge(allele.data, amp_cats[, c("locus.pool", "Category")], by.x = "locus", by.y = "locus.pool", all.x = TRUE)
 
 ## 0) Exclude samples based on sampleIDs provided in a text file if the 'exclude' argument is provided
 if (!is.null(args[4])) {
@@ -45,7 +49,10 @@ false_positives_before <- multiple_alleles_before %>%
 #print(paste("There were", dim(allele.data)[1]-dim(false_positives_before)[1], "alleles and", dim(false_positives_before)[1], "false positive alleles across", length(unique(false_positives_before$locus)), "amplicons from", length(unique(pos_controls_before$sampleID)), "`3D7 (monoclonal, single copy)` positive controls before applying any filter"))
 
 initial_alleles<-dim(allele.data)[1]-dim(false_positives_before)[1]
-initial_false_positives<-dim(false_positives_before)[1]
+initial_false_positives_div<-sum(false_positives_before$Category == "Diversity")
+initial_false_positives_res<-sum(false_positives_before$Category == "Resistance")
+initial_false_positives_imm<-sum(false_positives_before$Category == "Immune")
+initial_false_positives_diag<-sum(false_positives_before$Category == "Diagnostic")
 initial_amplicons_w_false_positives<-length(unique(false_positives_before$locus))
 initial_controls_w_false_positives<-length(unique(pos_controls_before$sampleID))
 
@@ -102,7 +109,10 @@ false_positives <- multiple_alleles %>%
 #print(paste("There were", dim(filtered_allele.data)[1]-dim(false_positives)[1], "alleles and", dim(false_positives)[1], "false positive alleles across", length(unique(false_positives$locus)), "amplicons from", length(unique(false_positives$sampleID)), "`3D7 (monoclonal, single copy)` positive controls after applying the contaminants filter"))
 
 contaminants_filter_alleles<-dim(filtered_allele.data)[1]-dim(false_positives_before)[1]
-contaminants_filter_false_positives<-dim(false_positives)[1]
+contaminants_filter_false_positives_div<-sum(false_positives$Category == "Diversity")
+contaminants_filter_false_positives_res<-sum(false_positives$Category == "Resistance")
+contaminants_filter_false_positives_imm<-sum(false_positives$Category == "Immune")
+contaminants_filter_false_positives_diag<-sum(false_positives$Category == "Diagnostic")
 contaminants_filter_amplicons_w_false_positives<-length(unique(false_positives$locus))
 contaminants_filter_controls_w_false_positives<-length(unique(false_positives$sampleID))
 
@@ -144,7 +154,10 @@ false_positives <- multiple_alleles %>%
 #print(paste("There are", dim(filtered_allele.data)[1]-dim(false_positives)[1], "alleles and", dim(false_positives)[1], "false positive alleles across", length(unique(false_positives$locus)), "amplicons from", length(unique(false_positives$sampleID)), "`3D7 (monoclonal, single copy)` positive controls after applying the contaminats and MAF filters"))
 
 frequency_filter_alleles<-dim(filtered_allele.data)[1]-dim(false_positives)[1]
-frequency_filter_false_positives<-dim(false_positives)[1]
+frequency_filter_false_positives_div<-sum(false_positives$Category == "Diversity")
+frequency_filter_false_positives_res<-sum(false_positives$Category == "Resistance")
+frequency_filter_false_positives_imm<-sum(false_positives$Category == "Immune")
+frequency_filter_false_positives_diag<-sum(false_positives$Category == "Diagnostic")
 frequency_filter_amplicons_w_false_positives<-length(unique(false_positives$locus))
 frequency_filter_controls_w_false_positives<-length(unique(false_positives$sampleID))
 
@@ -160,12 +173,15 @@ frequency_filter_shared_contaminants_amps<-length(intersect(frequency_filter_amp
 #### REPORT ####
 
 report <- data.frame(
-  initial = numeric(5),
-  contaminants_filter = numeric(5),
-  frequency_filter = numeric(5),
+  initial = numeric(8),
+  contaminants_filter = numeric(8),
+  frequency_filter = numeric(8),
   row.names = c(
     "total_alleles",
-    "false_positive_alleles",
+    "false_positive_diversity_alleles",
+    "false_positive_resistance_alleles",
+    "false_positive_diagnostic_alleles",
+    "false_positive_immunity_alleles",
     "amplicons_w_false_positive_alleles",
     "positive_controls_w_false_positives_alleles",
     "shared_contaminant_alleles"
@@ -173,12 +189,12 @@ report <- data.frame(
   check.names = FALSE
 )
 
-report$initial <- c(initial_alleles, initial_false_positives, initial_amplicons_w_false_positives, initial_controls_w_false_positives, initial_shared_contaminants_alleles)
-report$contaminants_filter <- c(contaminants_filter_alleles, contaminants_filter_false_positives, contaminants_filter_amplicons_w_false_positives, contaminants_filter_controls_w_false_positives, contaminants_filter_shared_contaminants_alleles)
-report$frequency_filter <- c(frequency_filter_alleles, frequency_filter_false_positives, frequency_filter_amplicons_w_false_positives, frequency_filter_controls_w_false_positives, frequency_filter_shared_contaminants_alleles)
+report$initial <- c(initial_alleles, initial_false_positives_div, initial_false_positives_res, initial_false_positives_diag, initial_false_positives_imm, initial_amplicons_w_false_positives, initial_controls_w_false_positives, initial_shared_contaminants_alleles)
+report$contaminants_filter <- c(contaminants_filter_alleles, contaminants_filter_false_positives_div, contaminants_filter_false_positives_res, contaminants_filter_false_positives_diag, contaminants_filter_false_positives_imm, contaminants_filter_amplicons_w_false_positives, contaminants_filter_controls_w_false_positives, contaminants_filter_shared_contaminants_alleles)
+report$frequency_filter <- c(frequency_filter_alleles, frequency_filter_false_positives_div, frequency_filter_false_positives_res, frequency_filter_false_positives_diag, frequency_filter_false_positives_imm, frequency_filter_amplicons_w_false_positives, frequency_filter_controls_w_false_positives, frequency_filter_shared_contaminants_alleles)
 report<-cbind(rownames(report), report)
 colnames(report)[1] <- ""
-
+colnames(report)[4]<-paste0("frequency_filter_", MAF)
 
 #### EXPORTS ####
 
