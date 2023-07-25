@@ -198,5 +198,8 @@ colnames(report)[4]<-paste0("frequency_filter_", MAF)
 
 #### EXPORTS ####
 
-write.table(filtered_allele.data,file="allele_data_filtered.txt",quote=F,sep="\t",col.names=T,row.names=F)
-write.table(report,file="allele_data_filtered_report.csv",quote=F,sep=",",col.names=T,row.names=F)
+base_filename <- basename(path)
+filename <- tools::file_path_sans_ext(base_filename)
+
+write.table(filtered_allele.data,file=paste0(filename, "_filtered.csv"),quote=F,sep="\t",col.names=T,row.names=F)
+write.table(report,file=paste0(filename, "_filter_report.csv"),quote=F,sep=",",col.names=T,row.names=F)
