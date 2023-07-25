@@ -68,9 +68,9 @@ initial_shared_contaminants_amps<-length(intersect(initial_amps_positive, initia
 #### CONTAMINATS FILTER ####
 
 # apply contaminants filter set by user
-if (CFilteringMethod == "max"){
+if (CFilteringMethod == "global_max"){
   CFilteringMethod <- NEG_threshold_max
-}else if (CFilteringMethod == "q95"){
+}else if (CFilteringMethod == "global_q95"){
   CFilteringMethod <- NEG_threshold_q95
 }else if (CFilteringMethod == "amp_max"){
   CFilteringMethod <- NEG_thresholds_max
@@ -197,9 +197,10 @@ colnames(report)[1] <- ""
 colnames(report)[4]<-paste0("frequency_filter_", MAF)
 
 #### EXPORTS ####
-
+CFilteringMethod_ <- CFilteringMethod #for exports
+                                  
 base_filename <- basename(path)
 filename <- tools::file_path_sans_ext(base_filename)
 
-write.table(filtered_allele.data,file=paste0(filename, "_filtered.csv"),quote=F,sep="\t",col.names=T,row.names=F)
-write.table(report,file=paste0(filename, "_filter_report.csv"),quote=F,sep=",",col.names=T,row.names=F)
+write.table(filtered_allele.data,file=paste0(filename, "_", CFilteringMethod_, "_", as.character(MAF), "_filtered.csv"),quote=F,sep="\t",col.names=T,row.names=F)
+write.table(report,file=paste0(filename, "_", CFilteringMethod_, "_", as.character(MAF), "_filter_report.csv"),quote=F,sep=",",col.names=T,row.names=F)
