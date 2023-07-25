@@ -54,7 +54,7 @@ initial_false_positives_res<-sum(false_positives_before$Category == "Resistance"
 initial_false_positives_imm<-sum(false_positives_before$Category == "Immune")
 initial_false_positives_diag<-sum(false_positives_before$Category == "Diagnostic")
 initial_amplicons_w_false_positives<-length(unique(false_positives_before$locus))
-initial_controls_w_false_positives<-length(unique(pos_controls_before$sampleID))
+initial_controls_w_false_positives<-length(unique(false_positives_before$sampleID))
 
 initial_alleles_positive<-unique(false_positives_before$asv)
 initial_alleles_negative<-unique(neg_controls$asv)
