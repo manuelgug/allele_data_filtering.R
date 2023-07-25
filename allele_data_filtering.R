@@ -194,6 +194,7 @@ report$contaminants_filter <- c(contaminants_filter_alleles, contaminants_filter
 report$frequency_filter <- c(frequency_filter_alleles, frequency_filter_false_positives_div, frequency_filter_false_positives_res, frequency_filter_false_positives_diag, frequency_filter_false_positives_imm, frequency_filter_amplicons_w_false_positives, frequency_filter_controls_w_false_positives, frequency_filter_shared_contaminants_alleles)
 report<-cbind(rownames(report), report)
 colnames(report)[1] <- ""
+colnames(report)[3]<-paste0("contaminants_filter_", CFilteringMethod_)
 colnames(report)[4]<-paste0("frequency_filter_", MAF)
 
 #### EXPORTS ####
