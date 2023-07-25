@@ -17,9 +17,9 @@ Rscript allele_data_filtering.R <path_to_file> <CFilteringMethod> <MAF> <exclude
 - `path_to_file`: Path to the input allele data file.
 - `CFilteringMethod`: Filtering method for contaminants. Options: `max`, `q95`, `amp_max`, `amp_q95`.
 
-  - *max*: single threshold derived from the maximum read count from all amplicons across negative controls
+  - *global_max*: single threshold derived from the maximum read count from all amplicons across negative controls
 
-  - *q95*: single threshold derived from the 95th percentile of read counts from all amplicons across negative controls
+  - *global_q95*: single threshold derived from the 95th percentile of read counts from all amplicons across negative controls
 
   - *amp_max*: amplicon-specific thresholds derived from maximum read count for each amplicon across negative controls
 
