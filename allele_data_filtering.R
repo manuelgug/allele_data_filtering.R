@@ -2,19 +2,27 @@ library(dplyr)
 
 
 args = commandArgs(trailingOnly=T)
-path=args[1]
-CFilteringMethod=args[2] # OPTIONS: max, q95, amp_max, amp_q95 
-MAF=args[3] #minimum allele frequency; default 0.02
+allele_table=args[1]
+resmarkers_table=args[2]
+CFilteringMethod=args[3] # OPTIONS: max, q95, amp_max, amp_q95 
+MAF=args[4] #minimum allele frequency; default 0.02
 
-allele.data<-read.csv(path, sep ="\t")
+
+allele.data<-read.csv(allele_table, sep ="\t")
 amp_cats<-read.csv("amplicon_categories.csv", header =T)
 
+# calculate initial read counts and allele freqs
+allele.data <- allele.data %>%
+  group_by(sampleID,locus) %>%
+  mutate(norm.reads.locus = reads/sum(reads)) %>%
+  mutate(n.alleles = n())
+
 #add categories to allele.data
-allele.data <- merge(allele.data, amp_cats[, c("locus.pool", "Category")], by.x = "locus", by.y = "locus.pool", all.x = TRUE)
+allele.data <- merge(allele.data, amp_cats[, c("locus.pool", "Category")], by.x = "locus", by.y = "locus.pool")
 
 ## 0) Exclude samples based on sampleIDs provided in a text file if the 'exclude' argument is provided
-if (!is.null(args[4])) {
-  exclude_file <- args[4]
+if (!is.null(args[5])) {
+  exclude_file <- args[5]
   if (file.exists(exclude_file)) {
     remove_samples <- read.csv(exclude_file, sep = "\t", header = FALSE)
     allele.data <- subset(allele.data, !(sampleID %in% remove_samples$V1))
@@ -24,13 +32,25 @@ if (!is.null(args[4])) {
 
 # 1) calculate contaminants filtering thresholds from negative controls
 if (any(grepl("(?i)Neg", allele.data$sampleID))) {
+  
   neg_controls_index <- grepl("(?i)Neg", allele.data$sampleID)
   neg_controls <- allele.data[neg_controls_index, ]
   NEG_threshold_max <- max(neg_controls$reads) # max threshold across amplicons
   NEG_threshold_q95 <- quantile(neg_controls$reads, 0.95) # q95 threshold across amplicons
+  
+  all.loci<-unique(allele.data$locus)
+  
   NEG_thresholds_max <- aggregate(reads ~ locus, data = neg_controls, FUN = function(x) max(x)) # max thresholds for each amplicon
+  missing_loci <- setdiff(all.loci, NEG_thresholds_max$locus)
+  missing_data <- data.frame(locus = missing_loci, reads = 0)
+  NEG_thresholds_max <- rbind(NEG_thresholds_max, missing_data)
   NEG_thresholds_q95 <- aggregate(reads ~ locus, data = neg_controls, FUN = function(x) quantile(x, probs = 0.95)) # q95 thresholds for each amplicon
+  missing_loci <- setdiff(all.loci, NEG_thresholds_q95$locus)
+  missing_data <- data.frame(locus = missing_loci, reads = 0)
+  NEG_thresholds_q95 <- rbind(NEG_thresholds_q95, missing_data)
+
 } else {
+  
   NEG_threshold_max <- 0
   NEG_threshold_q95 <- 0
   NEG_thresholds_max <- 0
@@ -66,6 +86,7 @@ initial_shared_contaminants_amps<-length(intersect(initial_amps_positive, initia
 
 
 #### CONTAMINATS FILTER ####
+CFilteringMethod_ <- CFilteringMethod #for exports
 
 # apply contaminants filter set by user
 if (CFilteringMethod == "global_max"){
@@ -198,10 +219,66 @@ colnames(report)[3]<-paste0("contaminants_filter_", CFilteringMethod_)
 colnames(report)[4]<-paste0("frequency_filter_", MAF)
 
 #### EXPORTS ####
-CFilteringMethod_ <- CFilteringMethod #for exports
-                                  
-base_filename <- basename(path)
+
+base_filename <- basename(allele_table)
 filename <- tools::file_path_sans_ext(base_filename)
+
+filtered_allele.data <- filtered_allele.data[, c(2, 1, 3:ncol(filtered_allele.data))]
 
 write.table(filtered_allele.data,file=paste0(filename, "_", CFilteringMethod_, "_", as.character(MAF), "_filtered.csv"),quote=F,sep="\t",col.names=T,row.names=F)
 write.table(report,file=paste0(filename, "_", CFilteringMethod_, "_", as.character(MAF), "_filter_report.csv"),quote=F,sep=",",col.names=T,row.names=F)
+
+
+
+### MICROHAPS FILTERING ###
+
+microhaps<-read.csv(resmarkers_table, sep ="\t")
+
+# calculate read initial counts and allele freqs
+microhaps <- microhaps %>%
+  group_by(sampleID,locus) %>%
+  mutate(norm.reads.locus = Reads/sum(Reads)) %>%
+  mutate(n.alleles = n())
+
+
+## contaminants filtering
+
+colnames(CFilteringMethod)[2]<-"Reads"
+
+if (is.null(CFilteringMethod)) {
+  print("No negative controls found. Skipping contaminants filter.")
+  microhaps_filtered <- microhaps
+} else {
+  if (class(CFilteringMethod) =="data.frame") {
+    microhaps_2 <- merge(microhaps, CFilteringMethod, by = "locus", suffixes = c("", ".NEG_threshold"))
+    microhaps_filtered <- microhaps[microhaps$Reads > microhaps_2$Reads.NEG_threshold, ]
+    microhaps_filtered <- microhaps_filtered[, !(names(microhaps_filtered) %in% c("norm.reads.locus", "n.alleles"))] #remove old allele freqs and counts
+  } else {
+    microhaps_filtered <- microhaps[microhaps$Reads > CFilteringMethod, ]
+    microhaps_filtered <- microhaps_filtered[, !(names(microhaps_filtered) %in% c("norm.reads.locus", "n.alleles"))] #remove old allele freqs and counts
+  }
+}
+
+# recalculate read counts and allele freqs
+microhaps_filtered <- microhaps_filtered %>%
+  group_by(sampleID,locus) %>%
+  mutate(norm.reads.locus = Reads/sum(Reads)) %>%
+  mutate(n.alleles = n())
+
+#frequency filtering
+
+microhaps_filtered <- microhaps_filtered[microhaps_filtered$norm.reads.locus > MAF, ]
+microhaps_filtered <- microhaps_filtered[, !(names(microhaps_filtered) %in% c("n.alleles"))] #remove old allele counts
+
+# recalculate allele counts based on remaining alleles
+microhaps_filtered <- microhaps_filtered %>%
+  group_by(sampleID,locus) %>%
+  #   mutate(norm.reads.locus = reads/sum(reads))%>%
+  mutate(n.alleles = n())
+
+# EXPORT
+
+base_filename2 <- basename(resmarkers_table)
+filename2 <- tools::file_path_sans_ext(base_filename2)
+
+write.table(microhaps_filtered,file=paste0(filename2, "_", CFilteringMethod_, "_", as.character(MAF), "_filtered.csv"),quote=F,sep="\t",col.names=T,row.names=F)
