@@ -11,7 +11,7 @@
 ## Usage
 
 ```bash
-Rscript allele_data_filtering.R <allele_table> <resmarkers_table ><CFilteringMethod> <MAF> <exclude_file>
+Rscript allele_data_filtering.R <allele_table> <resmarkers_table> <CFilteringMethod> <MAF> <exclude_file>
 ```
 
 - `allele_table`: Path to the input allele file.
