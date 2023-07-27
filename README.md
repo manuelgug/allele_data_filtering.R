@@ -33,7 +33,7 @@ Rscript allele_data_filtering.R <allele_table> <resmarkers_table> <CFilteringMet
 ## Example
 
 ```bash
-Rscript script_name.R allele_data.txt resmarkers_microhap_table.txt max 0.01 neg_controls_to_exclude.txt
+Rscript script_name.R allele_data.txt resmarkers_microhap_table.txt global_max 0.01 neg_controls_to_exclude.txt
 ```
 
 ## Nomenclature of controls
