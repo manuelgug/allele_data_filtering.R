@@ -2,7 +2,7 @@
 
 ## Description
 
-`allele_data_filtering.R` applies contaminants filtering and minimum allele frequency (MAF) filtering to remove potential false positives from [mad4hatter's](https://github.com/EPPIcenter/mad4hatter) main output allele_data.txt.The filtered allele data is then exported to a file named "allele_data_filtered.txt".
+`allele_data_filtering.R` applies contaminants filtering and minimum allele frequency (MAF) filtering to remove potential false positives from [mad4hatter's](https://github.com/EPPIcenter/mad4hatter) main output allele_data.txt and resmarkers_microhap_table.txt.
 
 ## Dependencies
 
@@ -11,11 +11,12 @@
 ## Usage
 
 ```bash
-Rscript allele_data_filtering.R <path_to_file> <CFilteringMethod> <MAF> <exclude_file>
+Rscript allele_data_filtering.R <allele_table> <resmarkers_table ><CFilteringMethod> <MAF> <exclude_file>
 ```
 
-- `path_to_file`: Path to the input allele data file.
-- `CFilteringMethod`: Filtering method for contaminants. Options: `max`, `q95`, `amp_max`, `amp_q95`.
+- `allele_table`: Path to the input allele file.
+- `resmarkers_table`: Path to the input resmarkers file.
+- `CFilteringMethod`: Filtering method for contaminants. Options: `global_max`, `global_q95`, `amp_max`, `amp_q95`.
 
   - *global_max*: single threshold derived from the maximum read count from all amplicons across negative controls
 
@@ -32,7 +33,7 @@ Rscript allele_data_filtering.R <path_to_file> <CFilteringMethod> <MAF> <exclude
 ## Example
 
 ```bash
-Rscript script_name.R allele_data.txt max 0.01 neg_controls_to_exclude.txt
+Rscript script_name.R allele_data.txt resmarkers_microhap_table.txt max 0.01 neg_controls_to_exclude.txt
 ```
 
 ## Nomenclature of controls
