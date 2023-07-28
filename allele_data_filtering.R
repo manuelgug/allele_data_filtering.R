@@ -1,13 +1,25 @@
 library(dplyr)
+library(optparse)
 
+# Define and parse command-line arguments
+option_list <- list(
+  make_option(c("--allele_table"), type = "character", default = "allele_data.txt", help = "Path to the allele table"),
+  make_option(c("--resmarkers_table"), type = "character", default = "resmarker_microhap_table2.txt", help = "Path to the resmarkers table"),
+  make_option(c("--CFilteringMethod"), type = "character", default = "global_max", help = "Contaminants filtering method: global_max, global_q95, amp_max, amp_q95"),
+  make_option(c("--MAF"), type = "numeric", default = 0, help = "Minimum allele frequency; default 0"),
+  make_option(c("--exclude_file"), type = "character", default = NULL, help = "Path to the file containing sampleIDs to exclude")
+)
 
-args = commandArgs(trailingOnly=T)
-allele_table=args[1]
-resmarkers_table=args[2]
-CFilteringMethod=args[3] # OPTIONS: max, q95, amp_max, amp_q95 
-MAF=args[4] #minimum allele frequency; default 0.02
+opt_parser <- OptionParser(option_list = option_list)
+opt <- parse_args(opt_parser)
 
+allele_table <- opt$allele_table
+resmarkers_table <- opt$resmarkers_table
+CFilteringMethod <- opt$CFilteringMethod
+MAF <- opt$MAF
+exclude_file<- opt$exclude_file
 
+#import allele table
 allele.data<-read.csv(allele_table, sep ="\t")
 amp_cats<-read.csv("amplicon_categories.csv", header =T)
 
@@ -21,12 +33,12 @@ allele.data <- allele.data %>%
 allele.data <- merge(allele.data, amp_cats[, c("locus.pool", "Category")], by.x = "locus", by.y = "locus.pool")
 
 ## 0) Exclude samples based on sampleIDs provided in a text file if the 'exclude' argument is provided
-if (!is.null(args[5])) {
-  exclude_file <- args[5]
+if (!is.null(opt$exclude_file)) {
+  exclude_file <- opt$exclude_file
   if (file.exists(exclude_file)) {
     remove_samples <- read.csv(exclude_file, sep = "\t", header = FALSE)
     allele.data <- subset(allele.data, !(sampleID %in% remove_samples$V1))
-  }
+  } 
 }
 
 
@@ -44,6 +56,7 @@ if (any(grepl("(?i)Neg", allele.data$sampleID))) {
   missing_loci <- setdiff(all.loci, NEG_thresholds_max$locus)
   missing_data <- data.frame(locus = missing_loci, reads = 0)
   NEG_thresholds_max <- rbind(NEG_thresholds_max, missing_data)
+  
   NEG_thresholds_q95 <- aggregate(reads ~ locus, data = neg_controls, FUN = function(x) quantile(x, probs = 0.95)) # q95 thresholds for each amplicon
   missing_loci <- setdiff(all.loci, NEG_thresholds_q95$locus)
   missing_data <- data.frame(locus = missing_loci, reads = 0)
@@ -242,8 +255,10 @@ microhaps <- microhaps %>%
 
 
 ## contaminants filtering
+if (class(CFilteringMethod)=="data.frame"){
+  colnames(CFilteringMethod)[2]<-"Reads"
+}
 
-colnames(CFilteringMethod)[2]<-"Reads"
 
 if (is.null(CFilteringMethod)) {
   print("No negative controls found. Skipping contaminants filter.")
