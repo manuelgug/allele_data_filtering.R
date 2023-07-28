@@ -3,8 +3,8 @@ library(optparse)
 
 # Define and parse command-line arguments
 option_list <- list(
-  make_option(c("--allele_table"), type = "character", default = "allele_data.txt", help = "Path to the allele table"),
-  make_option(c("--resmarkers_table"), type = "character", default = "resmarker_microhap_table2.txt", help = "Path to the resmarkers table"),
+  make_option(c("--allele_table"), type = "character", default = NULL, help = "Path to the allele table"),
+  make_option(c("--resmarkers_table"), type = "character", default = NULL, help = "Path to the resmarkers table"),
   make_option(c("--CFilteringMethod"), type = "character", default = "global_max", help = "Contaminants filtering method: global_max, global_q95, amp_max, amp_q95"),
   make_option(c("--MAF"), type = "numeric", default = 0, help = "Minimum allele frequency; default 0"),
   make_option(c("--exclude_file"), type = "character", default = NULL, help = "Path to the file containing sampleIDs to exclude")
