@@ -141,7 +141,7 @@ false_positives <- suppressWarnings({
 
 #print(paste("There were", dim(filtered_allele.data)[1]-dim(false_positives)[1], "alleles and", dim(false_positives)[1], "false positive alleles across", length(unique(false_positives$locus)), "amplicons from", length(unique(false_positives$sampleID)), "`3D7 (monoclonal, single copy)` positive controls after applying the contaminants filter"))
 
-contaminants_filter_alleles<-dim(filtered_allele.data)[1]-dim(false_positives_before)[1]
+contaminants_filter_alleles<-dim(filtered_allele.data)[1]-dim(false_positives)[1]
 contaminants_filter_false_positives_div<-sum(false_positives$Category == "Diversity")
 contaminants_filter_false_positives_res<-sum(false_positives$Category == "Resistance")
 contaminants_filter_false_positives_imm<-sum(false_positives$Category == "Immune")
