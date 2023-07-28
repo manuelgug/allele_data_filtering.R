@@ -33,13 +33,10 @@ allele.data <- allele.data %>%
 allele.data <- merge(allele.data, amp_cats[, c("locus.pool", "Category")], by.x = "locus", by.y = "locus.pool")
 
 ## 0) Exclude samples based on sampleIDs provided in a text file if the 'exclude' argument is provided
-if (!is.null(opt$exclude_file)) {
-  exclude_file <- opt$exclude_file
-  if (file.exists(exclude_file)) {
+if (!is.null(exclude_file)) {
     remove_samples <- read.csv(exclude_file, sep = "\t", header = FALSE)
     allele.data <- subset(allele.data, !(sampleID %in% remove_samples$V1))
-  } 
-}
+} 
 
 
 # 1) calculate contaminants filtering thresholds from negative controls
