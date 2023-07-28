@@ -11,29 +11,28 @@
 ## Usage
 
 ```bash
-Rscript allele_data_filtering.R <allele_table> <resmarkers_table> <CFilteringMethod> <MAF> <exclude_file>
+Rscript allele_data_filtering.R [--allele_table PATH] [--resmarkers_table PATH] [--CFilteringMethod METHOD] [--MAF VALUE] [--exclude_file PATH]
 ```
 
-- `allele_table`: Path to the input allele file.
-- `resmarkers_table`: Path to the input resmarkers file.
-- `CFilteringMethod`: Filtering method for contaminants. Options: `global_max`, `global_q95`, `amp_max`, `amp_q95`.
+- `--allele_table PATH`: Path to the input allele table.
 
-  - *global_max*: single threshold derived from the maximum read count from all amplicons across negative controls
+- `--resmarkers_table PATH`: Path to the input resmarkers table.
 
-  - *global_q95*: single threshold derived from the 95th percentile of read counts from all amplicons across negative controls
+- `--CFilteringMethod METHOD`: Contaminants filtering method. Options: "global_max", "global_q95", "amp_max", "amp_q95". Default: "global_max".
 
-  - *amp_max*: amplicon-specific thresholds derived from maximum read count for each amplicon across negative controls
+  - "global_max": Single threshold derived from the maximum read count from all amplicons across negative controls.
+  - "global_q95": Single threshold derived from the 95th percentile of read counts from all amplicons across negative controls.
+  - "amp_max": Amplicon-specific thresholds derived from the maximum read count for each amplicon across negative controls.
+  - "amp_q95": Amplicon-specific thresholds derived from the 95th percentile of read counts for each amplicon across negative controls.
 
-  - *amp_q95*:  amplicon-specific thresholds derived from 95th percentile of read counts for each amplicon across negative controls
-  
-- `MAF`: Minimum allele frequency. Default: 0.02.
+- `--MAF VALUE`: Minimum allele frequency filter. Default: 0.
 
-- `exclude_file`: file with a list of samples to exclude (optional).
+- `--exclude_file PATH`: Path to the file containing sampleIDs to exclude (optional).
 
 ## Example
 
 ```bash
-Rscript script_name.R allele_data.txt resmarkers_microhap_table.txt global_max 0.01 neg_controls_to_exclude.txt
+Rscript allele_data_filtering.R --allele_table allele_data.txt --resmarkers_table resmarker_microhap_table.txt --CFilteringMethod global_max --MAF 0.01 --exclude_file samples_to_exclude.txt
 ```
 
 ## Nomenclature of controls
