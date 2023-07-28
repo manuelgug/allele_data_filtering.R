@@ -160,12 +160,7 @@ contaminants_filter_shared_contaminants_amps<-length(intersect(contaminants_filt
 
 
 #### MAF FILTER ####
-
-# set default MAF filter to 2% if no value is provided (https://link.springer.com/content/pdf/10.1038/srep41108.pdf)
-if (is.null(MAF) == TRUE || is.na(MAF) == TRUE){
-  MAF <- 0.02
-}
-
+                                  
 # apply MAF filter to remove potential false positives
 filtered_allele.data <- filtered_allele.data[filtered_allele.data$norm.reads.locus > MAF, ]
 filtered_allele.data <- filtered_allele.data[, !(names(filtered_allele.data) %in% c("n.alleles"))] #remove old allele counts
