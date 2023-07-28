@@ -61,7 +61,7 @@ if (any(grepl("(?i)Neg", allele.data$sampleID))) {
   missing_loci <- setdiff(all.loci, NEG_thresholds_q95$locus)
   missing_data <- data.frame(locus = missing_loci, reads = 0)
   NEG_thresholds_q95 <- rbind(NEG_thresholds_q95, missing_data)
-
+  
 } else {
   
   NEG_threshold_max <- 0
@@ -75,9 +75,10 @@ pos_controls_before_index <- grepl("(?i)3D7", allele.data$sampleID) & !grepl("(?
 pos_controls_before <- allele.data[pos_controls_before_index, ]
 multiple_alleles_before<-pos_controls_before[pos_controls_before$n.alleles > 1,] # all alleles from 3D7 samples must be 1 (single copy), more than that can be considered false positives
 
-false_positives_before <- multiple_alleles_before %>%
-  group_by(sampleID, locus) %>%
-  filter(norm.reads.locus != max(norm.reads.locus)) # remove the most frequent allele of each amplicon from each sample and keep the others as false positives for filtering
+false_positives_before <- suppressWarnings({
+  multiple_alleles_before %>%
+    group_by(sampleID, locus) %>%
+    filter(norm.reads.locus != max(norm.reads.locus))}) # remove the most frequent allele of each amplicon from each sample and keep the others as false positives for filtering
 
 #print(paste("There were", dim(allele.data)[1]-dim(false_positives_before)[1], "alleles and", dim(false_positives_before)[1], "false positive alleles across", length(unique(false_positives_before$locus)), "amplicons from", length(unique(pos_controls_before$sampleID)), "`3D7 (monoclonal, single copy)` positive controls before applying any filter"))
 
@@ -136,9 +137,10 @@ pos_controls_index <- grepl("(?i)3D7", filtered_allele.data$sampleID) & !grepl("
 pos_controls <- filtered_allele.data[pos_controls_index, ]
 multiple_alleles<-pos_controls[pos_controls$n.alleles > 1,] # all alleles from 3D7 samples must be 1 (single copy), more than that can be considered false positives
 
-false_positives <- multiple_alleles %>%
-  group_by(sampleID, locus) %>%
-  filter(norm.reads.locus != max(norm.reads.locus)) # remove the most frequent allele of each amplicon from each sample and keep the others as false positives for filtering
+false_positives <- suppressWarnings({
+  multiple_alleles %>%
+    group_by(sampleID, locus) %>%
+    filter(norm.reads.locus != max(norm.reads.locus))}) # remove the most frequent allele of each amplicon from each sample and keep the others as false positives for filtering
 
 #print(paste("There were", dim(filtered_allele.data)[1]-dim(false_positives)[1], "alleles and", dim(false_positives)[1], "false positive alleles across", length(unique(false_positives$locus)), "amplicons from", length(unique(false_positives$sampleID)), "`3D7 (monoclonal, single copy)` positive controls after applying the contaminants filter"))
 
@@ -160,7 +162,7 @@ contaminants_filter_shared_contaminants_amps<-length(intersect(contaminants_filt
 
 
 #### MAF FILTER ####
-                                  
+
 # apply MAF filter to remove potential false positives
 filtered_allele.data <- filtered_allele.data[filtered_allele.data$norm.reads.locus > MAF, ]
 filtered_allele.data <- filtered_allele.data[, !(names(filtered_allele.data) %in% c("n.alleles"))] #remove old allele counts
@@ -176,9 +178,10 @@ pos_controls_index <- grepl("(?i)3D7", filtered_allele.data$sampleID) & !grepl("
 pos_controls <- filtered_allele.data[pos_controls_index, ]
 multiple_alleles<-pos_controls[pos_controls$n.alleles > 1,] # all alleles from 3D7 samples must be 1 (single copy), more than that can be considered false positives
 
-false_positives <- multiple_alleles %>%
-  group_by(sampleID, locus) %>%
-  filter(norm.reads.locus != max(norm.reads.locus)) # remove the most frequent allele of each amplicon from each sample and keep the others as false positives for filtering
+false_positives <- suppressWarnings({
+  multiple_alleles %>%
+    group_by(sampleID, locus) %>%
+    filter(norm.reads.locus != max(norm.reads.locus))}) # remove the most frequent allele of each amplicon from each sample and keep the others as false positives for filtering
 
 #print(paste("There are", dim(filtered_allele.data)[1]-dim(false_positives)[1], "alleles and", dim(false_positives)[1], "false positive alleles across", length(unique(false_positives$locus)), "amplicons from", length(unique(false_positives$sampleID)), "`3D7 (monoclonal, single copy)` positive controls after applying the contaminats and MAF filters"))
 
@@ -239,7 +242,6 @@ write.table(report,file=paste0(filename, "_", CFilteringMethod_, "_", as.charact
 
 
 ### MICROHAPS FILTERING ###
-                                  
 if (!is.null(resmarkers_table)){
   microhaps<-read.csv(resmarkers_table, sep ="\t")
   
