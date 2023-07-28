@@ -1,5 +1,8 @@
 library(dplyr)
 library(optparse)
+library(tidyr)
+library(ggplot2)
+library(gridExtra)
 
 # Define and parse command-line arguments
 option_list <- list(
@@ -237,6 +240,41 @@ write.table(filtered_allele.data,file=paste0(filename, "_", CFilteringMethod_, "
 write.table(report,file=paste0(filename, "_", CFilteringMethod_, "_", as.character(MAF), "_filter_report.csv"),quote=F,sep=",",col.names=T,row.names=F)
 
 
+## VISUALIZATION ##
+
+report_2 <- report[1:5,]
+colnames(report_2)[1]<-"alleles"
+report_2$alleles<-c("total_alleles", "diversity", "resistance", "diagnostic", "immunity")
+
+plot_data <- gather(report_2, key = "Category", value = "Value", -alleles)
+
+# Define the desired order of columns for the x-axis
+desired_order <- c(unique(plot_data$Category)[1], unique(plot_data$Category)[2], unique(plot_data$Category)[3])
+
+# Reorder the rows based on the desired order of columns
+plot_data$Category <- factor(plot_data$Category, levels = desired_order)
+
+plot_total <- ggplot(plot_data[plot_data$alleles == "total_alleles", ], aes(x = Category, y = Value, group = 1)) +
+  geom_line(linewidth = 1.5) +
+  labs(title = "",
+       x = "",
+       y = "Total Alleles") +
+  theme_minimal() +
+  scale_y_continuous(limits = c(0, max(plot_data$Value) * 1.02))  # Set the lower limit to 0
+
+plot_rest <- ggplot(plot_data[plot_data$alleles != "total_alleles", ], aes(x = Category, y = Value, group = alleles, color = alleles)) +
+  geom_line(linewidth = 1.5) +
+  labs(title = "",
+       x = "",
+       y = "False Positive Alleles") +
+  theme_minimal()+
+  scale_y_continuous(limits = c(0, max(plot_data[plot_data$alleles != "total_alleles", ][,3]) + 1)) +
+  theme(legend.title=element_blank())
+
+fig<-grid.arrange(plot_total, plot_rest, ncol = 2)
+
+ggsave(paste0(filename, "_", CFilteringMethod_, "_", as.character(MAF), "_filter_report.png"), fig, width = 14, height = 7, dpi = 300)
+
 
 ### MICROHAPS FILTERING ###
 if (!is.null(resmarkers_table)){
@@ -276,7 +314,6 @@ if (!is.null(resmarkers_table)){
     mutate(n.alleles = n())
   
   #frequency filtering
-  
   microhaps_filtered <- microhaps_filtered[microhaps_filtered$norm.reads.locus > MAF, ]
   microhaps_filtered <- microhaps_filtered[, !(names(microhaps_filtered) %in% c("n.alleles"))] #remove old allele counts
   
