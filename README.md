@@ -16,7 +16,7 @@ Rscript allele_data_filtering.R [--allele_table PATH] [--resmarkers_table PATH] 
 
 - `--allele_table PATH`: Path to the input allele table.
 
-- `--resmarkers_table PATH`: Path to the input resmarkers table.
+- `--resmarkers_table PATH`: Path to the input resmarkers table (optional).
 
 - `--CFilteringMethod METHOD`: Contaminants filtering method. Options: "global_max", "global_q95", "amp_max", "amp_q95". Default: "global_max".
 
