@@ -2,11 +2,15 @@
 
 ## Description
 
-`allele_data_filtering.R` applies contaminants filtering and minimum allele frequency (MAF) filtering to remove potential false positives from [mad4hatter's](https://github.com/EPPIcenter/mad4hatter) main output allele_data.txt and resmarkers_microhap_table.txt.
+`allele_data_filtering.R` applies contaminants filtering and minimum allele frequency (MAF) filtering to remove potential false positives from [mad4hatter's](https://github.com/EPPIcenter/mad4hatter) main output allele_data.txt and resmarker_microhap_table.txt.
 
 ## Dependencies
 
-- `dplyr` package
+- `dplyr`
+- `tidyr`
+- `optparse`
+- `ggplot2`
+- `gridExtra`
 
 ## Usage
 
@@ -14,20 +18,20 @@
 Rscript allele_data_filtering.R [--allele_table PATH] [--resmarkers_table PATH] [--CFilteringMethod METHOD] [--MAF VALUE] [--exclude_file PATH]
 ```
 
-- `--allele_table PATH`: Path to the input allele table.
+- `--allele_table`: Path to the input allele table.
 
-- `--resmarkers_table PATH`: Path to the input resmarkers table (optional).
+- `--resmarkers_table`: Path to the input resmarkers table (optional).
 
-- `--CFilteringMethod METHOD`: Contaminants filtering method. Options: "global_max", "global_q95", "amp_max", "amp_q95". Default: "global_max".
+- `--CFilteringMethod`: Contaminants filtering method. Options: "global_max", "global_q95", "amp_max", "amp_q95". Default: "global_max".
 
   - "global_max": Single threshold derived from the maximum read count from all amplicons across negative controls.
   - "global_q95": Single threshold derived from the 95th percentile of read counts from all amplicons across negative controls.
   - "amp_max": Amplicon-specific thresholds derived from the maximum read count for each amplicon across negative controls.
   - "amp_q95": Amplicon-specific thresholds derived from the 95th percentile of read counts for each amplicon across negative controls.
 
-- `--MAF VALUE`: Minimum allele frequency filter. Default: 0.
+- `--MAF`: Minimum allele frequency filter. Default: 0.
 
-- `--exclude_file PATH`: Path to the file containing sampleIDs to exclude (optional).
+- `--exclude_file`: Path to the file containing sampleIDs to exclude (optional).
 
 ## Example
 
