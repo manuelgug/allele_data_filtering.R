@@ -239,56 +239,58 @@ write.table(report,file=paste0(filename, "_", CFilteringMethod_, "_", as.charact
 
 
 ### MICROHAPS FILTERING ###
-
-microhaps<-read.csv(resmarkers_table, sep ="\t")
-
-# calculate read initial counts and allele freqs
-microhaps <- microhaps %>%
-  group_by(sampleID,locus) %>%
-  mutate(norm.reads.locus = Reads/sum(Reads)) %>%
-  mutate(n.alleles = n())
-
-
-## contaminants filtering
-if (class(CFilteringMethod)=="data.frame"){
-  colnames(CFilteringMethod)[2]<-"Reads"
-}
-
-
-if (is.null(CFilteringMethod)) {
-  print("No negative controls found. Skipping contaminants filter.")
-  microhaps_filtered <- microhaps
-} else {
-  if (class(CFilteringMethod) =="data.frame") {
-    microhaps_2 <- merge(microhaps, CFilteringMethod, by = "locus", suffixes = c("", ".NEG_threshold"))
-    microhaps_filtered <- microhaps[microhaps$Reads > microhaps_2$Reads.NEG_threshold, ]
-    microhaps_filtered <- microhaps_filtered[, !(names(microhaps_filtered) %in% c("norm.reads.locus", "n.alleles"))] #remove old allele freqs and counts
-  } else {
-    microhaps_filtered <- microhaps[microhaps$Reads > CFilteringMethod, ]
-    microhaps_filtered <- microhaps_filtered[, !(names(microhaps_filtered) %in% c("norm.reads.locus", "n.alleles"))] #remove old allele freqs and counts
+                                  
+if (!is.null(resmarkers_table)){
+  microhaps<-read.csv(resmarkers_table, sep ="\t")
+  
+  # calculate read initial counts and allele freqs
+  microhaps <- microhaps %>%
+    group_by(sampleID,locus) %>%
+    mutate(norm.reads.locus = Reads/sum(Reads)) %>%
+    mutate(n.alleles = n())
+  
+  
+  ## contaminants filtering
+  if (class(CFilteringMethod)=="data.frame"){
+    colnames(CFilteringMethod)[2]<-"Reads"
   }
+  
+  
+  if (is.null(CFilteringMethod)) {
+    print("No negative controls found. Skipping contaminants filter.")
+    microhaps_filtered <- microhaps
+  } else {
+    if (class(CFilteringMethod) =="data.frame") {
+      microhaps_2 <- merge(microhaps, CFilteringMethod, by = "locus", suffixes = c("", ".NEG_threshold"))
+      microhaps_filtered <- microhaps[microhaps$Reads > microhaps_2$Reads.NEG_threshold, ]
+      microhaps_filtered <- microhaps_filtered[, !(names(microhaps_filtered) %in% c("norm.reads.locus", "n.alleles"))] #remove old allele freqs and counts
+    } else {
+      microhaps_filtered <- microhaps[microhaps$Reads > CFilteringMethod, ]
+      microhaps_filtered <- microhaps_filtered[, !(names(microhaps_filtered) %in% c("norm.reads.locus", "n.alleles"))] #remove old allele freqs and counts
+    }
+  }
+  
+  # recalculate read counts and allele freqs
+  microhaps_filtered <- microhaps_filtered %>%
+    group_by(sampleID,locus) %>%
+    mutate(norm.reads.locus = Reads/sum(Reads)) %>%
+    mutate(n.alleles = n())
+  
+  #frequency filtering
+  
+  microhaps_filtered <- microhaps_filtered[microhaps_filtered$norm.reads.locus > MAF, ]
+  microhaps_filtered <- microhaps_filtered[, !(names(microhaps_filtered) %in% c("n.alleles"))] #remove old allele counts
+  
+  # recalculate allele counts based on remaining alleles
+  microhaps_filtered <- microhaps_filtered %>%
+    group_by(sampleID,locus) %>%
+    #   mutate(norm.reads.locus = reads/sum(reads))%>%
+    mutate(n.alleles = n())
+  
+  # EXPORT
+  
+  base_filename2 <- basename(resmarkers_table)
+  filename2 <- tools::file_path_sans_ext(base_filename2)
+  
+  write.table(microhaps_filtered,file=paste0(filename2, "_", CFilteringMethod_, "_", as.character(MAF), "_filtered.csv"),quote=F,sep="\t",col.names=T,row.names=F)
 }
-
-# recalculate read counts and allele freqs
-microhaps_filtered <- microhaps_filtered %>%
-  group_by(sampleID,locus) %>%
-  mutate(norm.reads.locus = Reads/sum(Reads)) %>%
-  mutate(n.alleles = n())
-
-#frequency filtering
-
-microhaps_filtered <- microhaps_filtered[microhaps_filtered$norm.reads.locus > MAF, ]
-microhaps_filtered <- microhaps_filtered[, !(names(microhaps_filtered) %in% c("n.alleles"))] #remove old allele counts
-
-# recalculate allele counts based on remaining alleles
-microhaps_filtered <- microhaps_filtered %>%
-  group_by(sampleID,locus) %>%
-  #   mutate(norm.reads.locus = reads/sum(reads))%>%
-  mutate(n.alleles = n())
-
-# EXPORT
-
-base_filename2 <- basename(resmarkers_table)
-filename2 <- tools::file_path_sans_ext(base_filename2)
-
-write.table(microhaps_filtered,file=paste0(filename2, "_", CFilteringMethod_, "_", as.character(MAF), "_filtered.csv"),quote=F,sep="\t",col.names=T,row.names=F)
