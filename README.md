@@ -38,6 +38,8 @@ Rscript allele_data_filtering.R [--allele_table PATH] [--resmarkers_table PATH] 
 ```bash
 Rscript allele_data_filtering.R --allele_table allele_data.txt --resmarkers_table resmarker_microhap_table.txt --CFilteringMethod global_max --MAF 0.01 --exclude_file samples_to_exclude.txt
 ```
+### Report visualization
+![report_visualization.jpg](https://github.com/manuelgug/allele_data_filtering.R/blob/main/report_visualization.png)
 
 ## Nomenclature of controls
 
