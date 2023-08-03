@@ -15,7 +15,7 @@
 ## Usage
 
 ```bash
-Rscript allele_data_filtering.R [--allele_table PATH] [--resmarkers_table PATH] [--CFilteringMethod METHOD] [--MAF VALUE] [--exclude_file PATH]
+Rscript allele_data_filtering.R [--allele_table PATH] [--resmarkers_table PATH] [--CFilteringMethod METHOD] [--MAF VALUE] [--exclude_file PATH] [--use_case_amps PATH]
 ```
 
 - `--allele_table`: Path to the input allele table.
@@ -32,11 +32,12 @@ Rscript allele_data_filtering.R [--allele_table PATH] [--resmarkers_table PATH] 
 - `--MAF`: Minimum allele frequency filter. Default: 0.
 
 - `--exclude_file`: Path to the file containing sampleIDs to exclude (optional).
+- `--use_case_amps`: Path to the file containing IDs of the use case amplicons (optional).
 
 ## Example
 
 ```bash
-Rscript allele_data_filtering.R --allele_table allele_data.txt --resmarkers_table resmarker_microhap_table.txt --CFilteringMethod amp_max --MAF 0.01 --exclude_file samples_to_exclude.txt
+Rscript allele_data_filtering.R --allele_table allele_data.txt --resmarkers_table resmarker_microhap_table.txt --CFilteringMethod amp_max --MAF 0.01 --exclude_file samples_to_exclude.txt --use_case_amps use_case_amps.txt
 ```
 ### Report visualization
 ![report_visualization.jpg](https://github.com/manuelgug/allele_data_filtering.R/blob/main/report_visualization.png)
